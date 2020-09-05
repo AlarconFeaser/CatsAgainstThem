@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Grid</title>
+</head>
+<style>
+    .game-cell{
+        -webkit-transition:all 0.1s ease-in-out;
+        -moz-transition: all 0.1s ease-in-out; 
+        -ms-transition: all 0.1s ease-in-out;
+        -o-transition: all 0.1s ease-in-out;
+        transition: all 0.1s ease-in-out;
+    }
+</style>
+<body>
+    <div id="grid-container">
+
+    </div>
+    <script>
+        const cell_height = 50
+        const cell_width = 50
+        const rows = 10
+        const cols = 10
+
+        const board = []
+        var grid = document.getElementById('grid-container');
+        for (var i = 0; i < rows; ++i)
+            for (var j = 0; j < cols; ++j) {
+                var div = document.createElement('div');
+                div.classList.add('game-cell')
+                div.style.position = 'absolute';
+                div.style.width = cell_width + "px";
+                div.style.height = cell_height + "px";
+                var img = document.createElement('IMG');
+                img.src = "./public/assets/cat.png"
+                img.style.height = '100%';
+                img.style.width = '100%';
+                div.appendChild(img);
+                board.push(new Array());
+                board[i][j] = {left : i * cell_width, top : j * cell_height, div : div}
+                div.style.left = board[i][j].left + 'px';
+                div.style.top = board[i][j].top + 'px';
+                grid.appendChild(div);
+            }
+        document.addEventListener('click', () => {
+            var cell1 = board[2][2];
+            var cell2 = board[6][6];
+            console.log(cell1)
+            cell1.div.innerHTML = '';
+            var tempL = cell2.left;
+            var tempT = cell2.top;
+            cell2.div.style.left = cell1.left + 'px';
+            cell2.div.style.top = cell1.top + 'px';
+            cell1.div.style.left = tempL + 'px';
+            cell1.div.style.top = tempT + 'px';
+
+            console.log(cell1)
+        })
+    </script>
+</body>
+</html>
