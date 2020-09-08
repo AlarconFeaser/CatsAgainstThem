@@ -16,6 +16,15 @@
     .game-cell{
         transition: all 0.1s ease-in;
     }
+
+    .dead-mouse{
+        transform: scale(2);
+        transform: translate(0, -50%);
+        transition : all 1s ease-in-out
+    }
+
+
+
 </style>
 <body>
     
@@ -26,15 +35,15 @@
 
         class Cat {
             constructor(x = 0, y = 0){
-                this.x = x;
+                this.x = x
                 this.y = y;
                 this.moving = false;
             }
         }
-        const cell_height = 50
-        const cell_width = 50
-        const rows = 12
-        const cols = 12
+        const cell_height = 100
+        const cell_width = 100
+        const rows = 3
+        const cols = 3
         const cat = new Cat();
         let targetX, targetY;
 
@@ -44,36 +53,46 @@
         const addEntity = (x, y, url) => {
                 var img = document.createElement('IMG');
                 img.src = url;
-                img.style.height = 'auto';
-                img.style.width = '100%';
+                img.style.height = '60%';
+                img.style.width = '80%';
                 // board[x][y].div.innerHTML = ''
                 board[x][y].div.appendChild(img);
         }
 
         const createCat = () => {
             board[cat.x][cat.y].div.innerHTML = ''
-            // cat.div = document.createElement('DIV')
-            // cat.div.style.position = 'absolute'
-            // cat.div.style.left = board[cat.x][cat.y].div.left;
-            // cat.div.style.top = board[cat.x][cat.y].div.top;
-            // cat.div.style.width = board[cat.x][cat.y].div.width
-            // cat.div.style.height = board[cat.x][cat.y].div.height
-            // cat.div.style.zIndex = 5000;
-            // var img = document.createElement('IMG')
-            // img.src = "./public/assets/cat.png"
-            // img.style.height = 'auto'
-            // img.style.width = '100%'
-            // cat.div.appendChild(img)
-            // cat.div.classList.add('game-cell')
-            // grid.appendChild(cat.div);
+            cat.div = document.createElement('DIV')
+            cat.div.style.position = 'absolute'
+            cat.div.style.left = board[cat.x][cat.y].left + 'px';
+            cat.div.style.top = board[cat.x][cat.y].top + 'px';
+            cat.div.style.width = cell_width + "px";
+            cat.div.style.height = cell_height + "px";
+            cat.div.style.zIndex = 1000;
+            let img = document.createElement('IMG')
+            img.style.position = "relative";
+            img.src = "./public/assets/cat.png"
+            img.style.width = '100%';
+            img.style.height = 'auto';
+            cat.div.appendChild(img);
+            cat.div.classList.add('game-cell');
+            grid.appendChild(cat.div);
         }
         
-        const transitionEndEvent = (e) => {
-            let cells = document.querySelectorAll('.game-cell');
-            console.log(board)
-            board[cat.x][cat.y].div.removeChild(board[cat.x][cat.y].div.querySelector('img'))
-            cat.x = targetX;
-            cat.y = targetY;
+        const removeMouse  = (node) => {
+            board[cat.x][cat.y].div.removeChild(node);
+        }
+
+        function transitionEndEvent(e) {
+            let node =  board[cat.x][cat.y].div.querySelector('img');
+            // node.addEventListener('eve')
+            if(node){
+                node.classList.add('dead-mouse');
+                let newNode = node;
+                setInterval(() => {removeMouse(newNode)}, 1000)
+
+            }
+            cat.x =  targetX != undefined ? targetX : cat.x;
+            cat.y = targetY != undefined ? targetY : cat.y;
             cat.moving = false;
         }
 
@@ -96,23 +115,28 @@
                 outer.style.height = cell_height + "px";
                 outer.style.left = board[i][j].left + 'px';
                 outer.style.top = board[i][j].top + 'px';
-                outer.style.backgroundColor = ((i + j) & 1) == 0 ? 'red' : 'blue';
+                outer.style.backgroundColor = ((i + j) & 1) == 0 ? 'green' : 'red';
+                outer.style.borderRadius = "25px";
                 div.style.left = board[i][j].left + 'px';
                 div.style.top = board[i][j].top + 'px';
                 div.style.width = cell_width + "px";
                 div.style.height = cell_height + "px";
+                //Center
+                div.style.display = 'flex';
+                div.style.alignItems = 'center';
+                div.style.justifyContent = "center";
+
                 div.innerHTML = rows * i + j
                 grid.appendChild(outer);
                 grid.appendChild(div);
                 outer.style.zIndex = -1;
                 addEntity(i, j, "./public/assets/mice.png")
-                div.addEventListener('webkitTransitionEnd', transitionEndEvent)
+                // div.addEventListener('webkitTransitionEnd', transitionEndEvent)
                 div.addEventListener('transitionend', transitionEndEvent)
             }
         }
 
-        addEntity(cat.x, cat.y, "./public/assets/cat.png");
-        // createCat();
+        createCat();
 
         document.onkeydown = movecat;
 
@@ -120,36 +144,51 @@
             let newX = cat.x, newY = cat.y;
             if (e.keyCode == '38') {// up arrow
                 newY--;
-                // console.log("moves up")
             }
             else if (e.keyCode == '40') {// down arrow
                 newY++;
-                // console.log("moves down")
             }
             else if (e.keyCode == '37') {// left arrow
                 newX--;
-                // console.log("moves left")
             }
             else if (e.keyCode == '39') {// right arrow
                 newX++;
-                // console.log("moves right")
             }
             move(cat.x, cat.y, newX, newY);
+            // moveCat(newX, newY);
         }        
+
+        const moveCat = (x2, y2) =>{
+            if(!cat.moving && x2 >= 0 && y2 >= 0 && x2 < rows &&  y2 < cols){
+                let to = board[x2][y2];
+                let tempL = to.left;
+                let tempT = to.top;
+                cat.div.style.left = tempL + 'px';
+                cat.div.style.top = tempT + 'px';
+                cat.div.classList.add('animating');
+                targetX = x2; 
+                targetY = y2;
+                cat.moving = true;
+            }
+        }
 
         const move = (x1, y1, x2, y2) => {
             if(!cat.moving && x2 >= 0 && y2 >= 0 && x2 < rows &&  y2 < cols){
-                console.log(x1, x2, cols, rows);
+                // why tho?
                 let from = board[x1][y1];
                 let to = board[x2][y2];
                 let tempL = to.left;
                 let tempT = to.top;
-                from.div.classList.add('animating');
                 from.div.style.left = tempL + 'px';
                 from.div.style.top = tempT + 'px';
                 let tempD = to.div;
                 to.div = from.div;
                 from.div = tempD;
+
+                cat.div.style.left = tempL + 'px';
+                cat.div.style.top = tempT + 'px';
+                cat.div.classList.add('animating');
+
                 targetX = x2; 
                 targetY = y2;
                 cat.moving = true;
