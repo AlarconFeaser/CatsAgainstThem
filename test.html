@@ -18,8 +18,7 @@
     }
 
     .dead-mouse{
-        transform: scale(2);
-        transform: translate(0, -50%);
+        transform: rotateY(180deg) translate3d(0,-40px,0);
         transition : all 1s ease-in-out
     }
 
@@ -40,10 +39,10 @@
                 this.moving = false;
             }
         }
-        const cell_height = 100
-        const cell_width = 100
-        const rows = 3
-        const cols = 3
+        const cell_height = 200
+        const cell_width = 200
+        const rows = 8
+        const cols = 8
         const cat = new Cat();
         let targetX, targetY;
 
@@ -83,13 +82,14 @@
         }
 
         function transitionEndEvent(e) {
-            let node =  board[cat.x][cat.y].div.querySelector('img');
-            // node.addEventListener('eve')
+            let cell = board[cat.x][cat.y];
+            let node =  cell.div.querySelector('img');
             if(node){
                 node.classList.add('dead-mouse');
-                let newNode = node;
-                setInterval(() => {removeMouse(newNode)}, 1000)
-
+                node.addEventListener('transitionend', () => {
+                    // cell.div.removeChild(node); //works but sometimes it doesn't 
+                    cell.div.innerHTML = "";
+                } )
             }
             cat.x =  targetX != undefined ? targetX : cat.x;
             cat.y = targetY != undefined ? targetY : cat.y;
@@ -117,10 +117,12 @@
                 outer.style.top = board[i][j].top + 'px';
                 outer.style.backgroundColor = ((i + j) & 1) == 0 ? 'green' : 'red';
                 outer.style.borderRadius = "25px";
+                outer.setAttribute("id", "outer"); 
                 div.style.left = board[i][j].left + 'px';
                 div.style.top = board[i][j].top + 'px';
                 div.style.width = cell_width + "px";
                 div.style.height = cell_height + "px";
+                div.setAttribute("id", "div"); 
                 //Center
                 div.style.display = 'flex';
                 div.style.alignItems = 'center';
@@ -131,7 +133,6 @@
                 grid.appendChild(div);
                 outer.style.zIndex = -1;
                 addEntity(i, j, "./public/assets/mice.png")
-                // div.addEventListener('webkitTransitionEnd', transitionEndEvent)
                 div.addEventListener('transitionend', transitionEndEvent)
             }
         }
